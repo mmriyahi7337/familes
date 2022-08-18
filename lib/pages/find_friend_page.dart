@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:familes/const/my_colors.dart';
-import 'package:familes/pages/select_alphabet_page.dart';
+import 'package:familes/pages/select_round_page.dart';
 import 'package:familes/widgets/my_button.dart';
+
 
 import '../widgets/my_toolbar.dart';
 
@@ -14,7 +15,8 @@ class FindFriendPage extends StatefulWidget {
 
 class _FindFriendPageState extends State<FindFriendPage> {
   int selectedIndex = -1;
-
+  int clientSide = -1;
+  //todo a btn for clientmod (thad disappear device list? ) , a btn for serverside again , maybe we need a btn for disconnct)
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -44,6 +46,8 @@ class _FindFriendPageState extends State<FindFriendPage> {
         nextBtn(),
         const SizedBox(height: 25),
         clientBtn(),
+        const SizedBox(height: 25),
+        // serverBtn(),
       ],
     );
   }
@@ -55,7 +59,7 @@ class _FindFriendPageState extends State<FindFriendPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           header(),
-          list(),
+          if (clientSide==0 || clientSide == -1) list(),
         ],
       ),
     );
@@ -78,18 +82,31 @@ class _FindFriendPageState extends State<FindFriendPage> {
   nextBtn() {
     return MyButton(
       onClick: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const SelectAlphabetPage()));
+        clientSide = -1;
+        Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const SelectRoundPage()));
       },
-      isActive: selectedIndex != -1,
+      isActive:(clientSide==0 || selectedIndex !=-1) ? true : false,
       text: 'ادامه',
     );
   }
   clientBtn() {
     return MyButton(
       onClick: () {
+        clientSide =1;
+        selectedIndex =-1;
+        // todo the master go to aplphabet page and client go to playground , not the aphabet page(for the first round , next round the client must choose the alphabet)
 
       },
       text: 'به بازی دیگران وصل بشیم',
+    );
+  }
+  serverBtn() {
+    return MyButton(
+      onClick: () {
+        clientSide = -1;
+      },
+      isActive: clientSide != 0,
+      text: 'دستگاه مادر',
     );
   }
 
@@ -119,7 +136,7 @@ class _FindFriendPageState extends State<FindFriendPage> {
     List<Widget> items = [];
     // todo: pass devices to loop
     for (int i = 0; i < 100; i++) {
-      items.add(deviceItem('abbas', i));
+      items.add(deviceItem('guest', i));
     }
     return items;
   }

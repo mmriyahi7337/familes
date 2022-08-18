@@ -222,6 +222,42 @@ class _PlayGroundPageState extends State<PlayGroundPage> {
           word: 'ب',
           controller: TextEditingController(),
         ),
+        Question(
+          title: 'ماشین',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'مشاهیر ',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'حیوان',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'اشیا',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'میوه',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'نام گل',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+        Question(
+          title: 'فیلم',
+          word: 'ب',
+          controller: TextEditingController(),
+        ),
+
       ],
     ));
   }

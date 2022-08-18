@@ -46,8 +46,6 @@ class _SelectAlphabetPageState extends State<SelectAlphabetPage> {
         child: Column(
           children: [
             const SizedBox(height: kToolbarHeight + 60),
-            roundCountSelection(),
-            const SizedBox(height: 25),
             alphabets(),
             const SizedBox(height: 40),
             startGameBtn(),
@@ -172,6 +170,7 @@ class _SelectAlphabetPageState extends State<SelectAlphabetPage> {
                   : MyColor.highlightBlue,
               onTap: () {
                 // todo: add another logic for alphabet selection:
+                //todo disable the alph from past round
                 if (selectedAlphabets.contains(element)) {
                   setState(() {
                     selectedAlphabets.remove(element);
