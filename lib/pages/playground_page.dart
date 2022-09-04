@@ -1,44 +1,68 @@
-import 'package:flutter/material.dart';
 import 'package:familes/const/my_colors.dart';
+import 'package:familes/controller/message_controller.dart';
+import 'package:familes/pages/round_result_page.dart';
 import 'package:familes/widgets/my_button.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../widgets/count_down_timer.dart';
 import '../widgets/question.dart';
 
-class PlayGroundPage extends StatefulWidget {
-  const PlayGroundPage({Key? key}) : super(key: key);
+class PlayGroundPage extends StatelessWidget {
+  PlayGroundPage({Key? key}) : super(key: key);
 
-  @override
-  _PlayGroundPageState createState() => _PlayGroundPageState();
-}
+  final nameTEC = TextEditingController();
+  final familyTEC = TextEditingController();
+  final cityTEC = TextEditingController();
+  final countryTEC = TextEditingController();
+  final thingsTEC = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
-class _PlayGroundPageState extends State<PlayGroundPage> {
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<MessageController>(tag: 'MessageController');
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.background,
-        body: SizedBox(
-          height: double.infinity,
-          width: double.infinity,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                const SizedBox(height: 50),
-                header(enemyScore: 2, yourScore: 1, selectedAlphabet: 'س'),
-                hintText(),
-                const SizedBox(height: 16),
-                timer(),
-                const SizedBox(height: 50),
-                questions(),
-                const SizedBox(height: 25),
-                endMatchBtn(),
-                const SizedBox(height: 70),
-              ],
-            ),
-          ),
-        ),
+        body: GetBuilder<MessageController>(
+            init: controller,
+            builder: (c) {
+              if (!(c.endRound_1) && c.endRound_2) {
+                Future.delayed(const Duration(milliseconds: 100)).then((value) {
+                  saveAns(c);
+                  c.sendMessage(c.msgAnswers());
+                });
+              }
+              if(c.endRound_1 && c.endRound_2){
+                Future.delayed(const Duration(milliseconds: 100)).then((value) {
+                  c.resetEndRounds();
+                  Get.off(const RoundResultPage(), preventDuplicates: false);
+                });
+              }
+              return SizedBox(
+                height: double.infinity,
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 50),
+                      header(
+                          enemyScore: c.score_2, yourScore: c.score_1, selectedAlphabet: c.selectedWord),
+                      hintText(),
+                      const SizedBox(height: 16),
+                      timer(c),
+                      const SizedBox(height: 50),
+                      questions(c.selectedWord),
+                      const SizedBox(height: 25),
+                      endMatchBtn(c),
+                      const SizedBox(height: 70),
+                    ],
+                  ),
+                ),
+              );
+            }),
       ),
     );
   }
@@ -165,7 +189,7 @@ class _PlayGroundPageState extends State<PlayGroundPage> {
     );
   }
 
-  timer() {
+  timer(MessageController c) {
     return Column(
       children: [
         Container(
@@ -178,9 +202,22 @@ class _PlayGroundPageState extends State<PlayGroundPage> {
           child: CountDownTimer(
             secondsRemaining: 300,
             whenTimeExpires: () {
-              setState(() {
-                // todo: end game when time is over
-              });
+              if (nameTEC.text.trim().startsWith(c.selectedWord)) {
+                c.name_1 = nameTEC.text.trim();
+              }
+              if (familyTEC.text.trim().startsWith(c.selectedWord)) {
+                c.family_1 = familyTEC.text.trim();
+              }
+              if (cityTEC.text.trim().startsWith(c.selectedWord)) {
+                c.city_1 = cityTEC.text.trim();
+              }
+              if (countryTEC.text.trim().startsWith(c.selectedWord)) {
+                c.country_1 = countryTEC.text.trim();
+              }
+              if (thingsTEC.text.trim().startsWith(c.selectedWord)) {
+                c.things_1 = thingsTEC.text.trim();
+              }
+              c.sendMessage(c.msgAnswers());
             },
             countDownTimerStyle: const TextStyle(
               color: Colors.white,
@@ -198,77 +235,66 @@ class _PlayGroundPageState extends State<PlayGroundPage> {
     );
   }
 
-  questions() {
+  questions(String selectedWord) {
     return Form(
+        key: formKey,
         child: Column(
-      children: [
-        Question(
-          title: 'اسم',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'فامیل',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'شهر',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'کشور',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'ماشین',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'مشاهیر ',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'حیوان',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'اشیا',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'میوه',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'نام گل',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-        Question(
-          title: 'فیلم',
-          word: 'ب',
-          controller: TextEditingController(),
-        ),
-
-      ],
-    ));
+          children: [
+            Question(
+              title: 'اسم',
+              word: selectedWord,
+              controller: nameTEC,
+            ),
+            Question(
+              title: 'فامیل',
+              word: selectedWord,
+              controller: familyTEC,
+            ),
+            Question(
+              title: 'شهر',
+              word: selectedWord,
+              controller: cityTEC,
+            ),
+            Question(
+              title: 'کشور',
+              word: selectedWord,
+              controller: countryTEC,
+            ),
+            Question(
+              title: 'اشیا',
+              word: selectedWord,
+              controller: thingsTEC,
+            ),
+          ],
+        ));
   }
 
-  endMatchBtn() {
+  endMatchBtn(MessageController c) {
     return MyButton(
       onClick: () {
-        // todo
+        saveAns(c);
+        c.sendMessage(c.msgAnswers());
       },
       text: 'پایان راند',
       backgroundColor: MyColor.orange,
     );
+  }
+
+  saveAns(MessageController c) {
+    if (nameTEC.text.trim().startsWith(c.selectedWord)) {
+      c.name_1 = nameTEC.text.trim();
+    }
+    if (familyTEC.text.trim().startsWith(c.selectedWord)) {
+      c.family_1 = familyTEC.text.trim();
+    }
+    if (cityTEC.text.trim().startsWith(c.selectedWord)) {
+      c.city_1 = cityTEC.text.trim();
+    }
+    if (countryTEC.text.trim().startsWith(c.selectedWord)) {
+      c.country_1 = countryTEC.text.trim();
+    }
+    if (thingsTEC.text.trim().startsWith(c.selectedWord)) {
+      c.things_1 = thingsTEC.text.trim();
+    }
   }
 }

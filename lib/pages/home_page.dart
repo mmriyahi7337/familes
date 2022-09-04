@@ -5,6 +5,8 @@ import 'package:familes/const/my_colors.dart';
 import 'package:familes/pages/find_friend_page.dart';
 import 'package:familes/widgets/my_button.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -50,7 +52,7 @@ class HomePage extends StatelessWidget {
   MyButton playBtn(BuildContext context) {
     return MyButton(
       onClick: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const FindFriendPage()));
+        Get.to(const FindFriendPage());
       },
       isFullSize: false,
       backgroundColor: MyColor.blue,

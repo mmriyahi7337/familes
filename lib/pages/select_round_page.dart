@@ -1,43 +1,58 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:familes/pages/select_alphabet_page.dart';
+import 'package:familes/widgets/Loading_View.dart';
 import 'package:familes/widgets/my_button.dart';
 import 'package:familes/widgets/rect_button.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../const/my_colors.dart';
+import '../controller/message_controller.dart';
 import '../widgets/my_toolbar.dart';
 
-class SelectRoundPage extends StatefulWidget {
-  const SelectRoundPage({Key? key}) : super(key: key);
+class SelectRoundPage extends StatelessWidget {
+  final bool isServer;
 
-  @override
-  _SelectRoundPageState createState() => _SelectRoundPageState();
-}
-
-class _SelectRoundPageState extends State<SelectRoundPage> {
-  int roundCountNumber = 1;
-  List<String> selectedAlphabets = [];
+  const SelectRoundPage({required this.isServer});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<MessageController>(tag: 'MessageController');
+    bool isInit = false;
+
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: MyColor.background,
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: body(),
-              ),
-            ),
-            const MyToolbar(),
-          ],
-        ),
+      child: GetBuilder<MessageController>(
+        init: controller,
+        builder: (c) {
+          if(!isInit && controller.selectRound){
+            Future.delayed(const Duration(milliseconds: 50)).then((value) {
+              Get.off(const SelectAlphabetPage(), preventDuplicates: false);
+            });
+            isInit = true;
+          }
+          return Scaffold(
+            backgroundColor: MyColor.background,
+            body: isServer
+                ? Stack(
+                    children: [
+                      Positioned.fill(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: body(controller, context),
+                        ),
+                      ),
+                      const MyToolbar(),
+                    ],
+                  )
+                : const LoadingView(text: 'لطفا منتظر بمانید!'),
+          );
+        }
       ),
     );
   }
 
-  body() {
+  body(MessageController controller, BuildContext context) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -45,16 +60,17 @@ class _SelectRoundPageState extends State<SelectRoundPage> {
         child: Column(
           children: [
             const SizedBox(height: kToolbarHeight + 200),
-            roundCountSelection(),
+            roundCountSelection(controller),
             const SizedBox(height: 25),
-            goAlphabetBtn(),
+            goAlphabetBtn(controller, context),
             const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
-  roundCountSelection() {
+
+  roundCountSelection(MessageController controller) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -64,7 +80,7 @@ class _SelectRoundPageState extends State<SelectRoundPage> {
       child: Column(
         children: [
           roundText(),
-          roundNumber(),
+          roundNumber(controller),
         ],
       ),
     );
@@ -82,47 +98,40 @@ class _SelectRoundPageState extends State<SelectRoundPage> {
     );
   }
 
-  roundNumber() {
+  roundNumber(MessageController controller) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0, left: 16, right: 16),
       child: Row(
         children: [
-          minusBtn(),
-          number(),
-          plusBtn(),
+          minusBtn(controller),
+          number(controller),
+          plusBtn(controller),
         ],
       ),
     );
   }
-  minusBtn() {
+
+  minusBtn(MessageController controller) {
     return RectButton(
       text: '-',
       backgroundColor: MyColor.orange,
       onTap: () {
-        setState(
-              () {
-            if (roundCountNumber > 1) {
-              roundCountNumber--;
-            }
-          },
-        );
+        controller.decRound();
       },
     );
   }
 
-  plusBtn() {
+  plusBtn(MessageController controller) {
     return RectButton(
       text: '+',
       backgroundColor: MyColor.blue,
       onTap: () {
-        setState(() {
-          roundCountNumber++;
-        });
+        controller.incRound();
       },
     );
   }
 
-  number() {
+  number(MessageController controller) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -133,12 +142,17 @@ class _SelectRoundPageState extends State<SelectRoundPage> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: Center(
-            child: Text(
-              '$roundCountNumber',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-              ),
+            child: GetBuilder<MessageController>(
+              init: controller,
+              builder: (c) {
+                return Text(
+                  '${c.round}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                  ),
+                );
+              }
             ),
           ),
         ),
@@ -146,14 +160,15 @@ class _SelectRoundPageState extends State<SelectRoundPage> {
     );
   }
 
-  goAlphabetBtn() {
+  goAlphabetBtn(MessageController controller, BuildContext context) {
     return MyButton(
-      onClick: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SelectAlphabetPage()));
+      onClick: () async {
+        // controller.msgSelectRound();
+        controller.sendMessage(controller.msgSelectRound());
+        // Get.to(SelectAlphabetPage(device: device), preventDuplicates: false);
       },
       text: 'انتخاب حرف ',
     );
   }
 
 }
-

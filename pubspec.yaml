@@ -29,6 +29,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_nearby_connections: ^1.1.1
+  device_info_plus: ^4.1.2
+  get: ^4.6.5
+  nearby_connections: ^3.2.0
+  path_provider: ^2.0.11
 
 
   # The following adds the Cupertino Icons font to your application.
